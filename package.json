@@ -4,7 +4,7 @@
   "description": "a JavaScript library for parsing BNF grammars",
   "main": "prettybnf.js",
   "scripts": {
-    "test": "nodeunit test_prettybnf.js"
+    "test": "$(which nodeunit || echo node_modules/nodeunit/bin/nodeunit) test_prettybnf.js"
   },
   "repository": {
     "type": "git",
