@@ -1,0 +1,166 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Prettybnf by dhconnelly</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>Prettybnf</h1>
+        <p>a JavaScript library for working with BNF grammars</p>
+
+        <p class="view"><a href="https://github.com/dhconnelly/prettybnf">View the Project on GitHub <small>dhconnelly/prettybnf</small></a></p>
+
+
+        <ul>
+          <li><a href="https://github.com/dhconnelly/prettybnf/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/dhconnelly/prettybnf/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/dhconnelly/prettybnf">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h1>prettybnf</h1>
+
+<p>a JavaScript library for working with BNF grammars</p>
+
+<h2>About</h2>
+
+<p><code>prettybnf</code> provides a parser for Backus-Naur Form grammars and a stringifier
+for pretty-printing BNF abstract syntax trees.  It uses the traditional BNF
+syntax as opposed to <code>yacc</code> syntax.</p>
+
+<h2>Getting Started</h2>
+
+<p>You can use <code>prettybnf</code> both in Node.js apps and in modern browsers.  Only
+browsers that implement ECMAScript 5.1 with strict mode are supported.  This
+includes Chrome 13+, Firefox 4+, Safari 5.1+, IE 10+, and Opera 12+
+(<a href="http://kangax.github.com/es5-compat-table">source</a>).</p>
+
+<p>To get the library:</p>
+
+<ul>
+<li>in a Node.js app using <code>npm</code>: do <code>npm install prettybnf</code> and add
+<code>var prettybnf = require('prettybnf')</code> to your scripts.</li>
+<li>in a Node.js app, manually: put <code>prettybnf.js</code> somewhere and add
+<code>var prettybnf = require('./path/to/prettybnf.js')</code> to your scripts.</li>
+<li>in a browser app: put <code>prettybnf.js</code> somewhere and add the usual
+<code>&lt;script src="path/to/prettybnf.js"&gt;&lt;/script&gt;</code> tag to your HTML.  This will
+create a global object named <code>prettybnf</code>.</li>
+</ul><p>If you're not using <code>npm</code> you can download the latest version of <code>prettybnf.js</code>
+from GitHub <a href="https://github.com/dhconnelly/prettybnf/downloads">here</a>.</p>
+
+<h2>Usage</h2>
+
+<p>There are four top-level exports on the <code>prettybnf</code> object:</p>
+
+<ul>
+<li>
+<code>prettybnf.version</code>: string defining your version of the library</li>
+<li>
+<code>prettybnf.parse(grammar)</code>: parses a BNF string and returns the AST</li>
+<li>
+<code>prettybnf.stringify(ast)</code>: serializes an AST to a BNF string</li>
+<li>
+<code>prettybnf.Parser(grammar)</code>: internals of the parser for testing and hacking</li>
+</ul><p>The parser constructs an AST, composed of AST nodes, from a grammar.  Each node
+is an object with a <code>type</code> property that specifies the type of node. The node
+types, which correspond to the BNF syntax recognized by the parser, are as
+follows:</p>
+
+<ul>
+<li><code>grammar</code></li>
+<li><code>production</code></li>
+<li><code>expression</code></li>
+<li><code>nonterminal</code></li>
+<li><code>terminal</code></li>
+</ul><p><code>prettybnf.parse</code> returns a <code>grammar</code> node.</p>
+
+<p>Each node has other relevant properties, described as follows:</p>
+
+<ul>
+<li>
+<code>grammar</code>:
+
+<ul>
+<li>
+<code>productions</code>: an <code>Array</code> of <code>production</code> nodes.</li>
+</ul>
+</li>
+<li>
+<code>production</code>:
+
+<ul>
+<li>
+<code>lhs</code>: a <code>nonterminal</code> node</li>
+<li>
+<code>rhs</code>: an <code>Array</code> of <code>expression</code> nodes</li>
+</ul>
+</li>
+<li>
+<code>expression</code>:
+
+<ul>
+<li>
+<code>terms</code>: an <code>Array</code> of <code>terminal</code> or <code>nonterminal</code> nodes</li>
+</ul>
+</li>
+<li>
+<code>terminal</code>:
+
+<ul>
+<li>
+<code>text</code>: the terminal <code>String</code>
+</li>
+</ul>
+</li>
+<li>
+<code>nonterminal</code>:
+
+<ul>
+<li>
+<code>text</code>: a <code>String</code> specifying the name of the nonterminal</li>
+</ul>
+</li>
+</ul><p>The BNF syntax recognized by the parser is defined in the file <code>prettybnf.bnf</code>,
+which is itself written in BNF.</p>
+
+<h2>Contributing</h2>
+
+<ul>
+<li>fork on <a href="https://github.com/dhconnelly/prettybnf">GitHub</a>
+</li>
+<li>make sure you have <a href="http://nodejs.org">Node.js</a>
+</li>
+<li>write code in <code>prettybnf.js</code>
+</li>
+<li>add unit tests to <code>test_prettybnf.js</code>
+</li>
+<li>make sure all tests pass and everything passes <code>jshint</code>: <code>npm test</code>
+</li>
+<li>send me a pull request</li>
+</ul><h2>Author</h2>
+
+<p>Written by Daniel Connelly <a href="mailto:dhconnelly@gmail.com">dhconnelly@gmail.com</a> (<a href="http://dhconnelly.com">http://dhconnelly.com</a>).</p>
+
+<h2>License</h2>
+
+<p>Released under the 2-clause BSD license; see LICENSE for more details.</p>
+      </section>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/dhconnelly">dhconnelly</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <script src="javascripts/scale.fix.js"></script>
+    
+  </body>
+</html>
