@@ -99,7 +99,7 @@ Parser.prototype.term = function () {
     return (this.peek() === '<') ? this.nonterminal() : this.terminal();
 };
 
-// <expression> ::= <term> <ws> <expression> | <term>;
+// <expression> ::= <term> <ws> <expression> | <term> <ws>;
 Parser.prototype.expression = function () {
     var terms = [this.term()];
     this.ws();
@@ -108,6 +108,17 @@ Parser.prototype.expression = function () {
         this.ws();
     }
     return { type: 'expression', terms: terms };
+};
+
+// <expressions> ::= <expression> "|" <ws> <expressions> | <expression>;
+Parser.prototype.expressions = function () {
+    var expressions = [this.expression()];
+    while (this.peek() === '|') {
+        this.eat('|');
+        this.ws();
+        expressions.push(this.expression());
+    }
+    return { type: 'expressions', expressions: expressions };
 };
 
 }(typeof exports === 'undefined' ? this.prettybnf = {} : exports));

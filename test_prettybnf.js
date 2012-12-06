@@ -103,7 +103,21 @@ exports.testParser_expression = function (t) {
     t.equal(node.terms[0].text, 'abc');
     t.equal(node.terms[1].text, 'def');
     t.equal(node.terms[2].text, '');
+    t.throws(function () { new Parser('').expression(); }, SyntaxError);
     t.throws(function () { new Parser('abc').expression(); }, SyntaxError);
     t.throws(function () { new Parser(' abc').expression(); }, SyntaxError);
+    t.done();
+};
+
+exports.testParser_expressions = function (t) {
+    var node = new Parser('<abc> <def> | "ghi" | ""').expressions();
+    t.equal(node.type, 'expressions');
+    t.equal(node.expressions.length, 3);
+    t.equal(node.expressions[0].terms.length, 2);
+    t.equal(node.expressions[1].terms.length, 1);
+    t.equal(node.expressions[2].terms.length, 1);
+    t.throws(function () { new Parser('').expressions(); }, SyntaxError);
+    t.throws(function () { new Parser('<a> |').expressions(); }, SyntaxError);
+    t.throws(function () { new Parser('| <a>').expressions(); }, SyntaxError);
     t.done();
 };
