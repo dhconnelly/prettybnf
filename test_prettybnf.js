@@ -4,7 +4,7 @@
 var prettybnf = require('./prettybnf');
 
 exports.testVersion = function (t) {
-    t.equal(prettybnf.version, '0.1.0');
+    t.equal(prettybnf.version, '0.1.1');
     t.done();
 };
 
