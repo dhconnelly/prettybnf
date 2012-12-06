@@ -17,6 +17,10 @@ function Parser(input) {
 
 var EOF = Parser.EOF = -1;
 
+Parser.prototype.error = function (msg) {
+    throw new SyntaxError(msg + ' at ' + this.line + ':' + this.pos);
+};
+
 Parser.prototype.peek = function () {
     if (this.pos >= this.input.length) return EOF;
     return this.input[this.pos];
@@ -25,7 +29,7 @@ Parser.prototype.peek = function () {
 Parser.prototype.eat = function (expected) {
     var ch = this.peek();
     if (expected !== undefined && expected !== ch) {
-        throw new SyntaxError('Expected ' + expected + ', got' + ch);
+        this.error('Expected ' + expected + ', got' + ch);
     }
     if (ch === EOF) return EOF;
     this.pos++;
@@ -44,14 +48,17 @@ Parser.prototype.ws = function () {
     return ret;
 };
 
-// <escaped> ::= "\\\"" | "\\n" | "\\t";
+// <escaped> ::= "\\\"" | "\\n" | "\\t" | "\\\\";
 Parser.prototype.escaped = function () {
     this.eat('\\');
     var ch = this.peek();
-    if (ch !== '"' && ch !== 'n' && ch !== 't') {
-        throw new SyntaxError('Invalid escape sequence: \\' + ch);
+    switch (ch) {
+    case 'n':  this.eat(); return '\n';
+    case 't':  this.eat(); return '\t';
+    case '"':  this.eat(); return '"';
+    case '\\': this.eat(); return '\\';
     }
-    return '\\' + this.eat();
+    this.error('Invalid escape sequence: \\' + ch);
 };
 
 // <char> ::= <letter> | <digit> | <delim> | <escaped>;
@@ -78,10 +85,22 @@ Parser.prototype.text = function () {
     return ret;
 };
 
-// <terminal> ::= "\"" <text> "\"";
+// <terminal_text> ::= <terminal_char> <terminal_text> | <empty>;
+// <terminal_char> ::= <char> | "<" | ">";
+Parser.prototype.terminal_text = function () {
+    var ret = '', ch = this.peek();
+    while (this.isChar() || ch === '<' || ch === '>') {
+        if (ch === '\\') ret += this.escaped();
+        else ret += this.eat();
+        ch = this.peek();
+    }
+    return ret;
+};
+
+// <terminal> ::= "\"" <terminal_text> "\"";
 Parser.prototype.terminal = function () {
     this.eat('"');
-    var text = this.text();
+    var text = this.terminal_text();
     this.eat('"');
     return { type: 'terminal', text: text };
 };
@@ -130,6 +149,17 @@ Parser.prototype.production = function () {
     var rhs = this.expressions();
     this.eat(';');
     return { type: 'production', lhs: lhs, rhs: rhs };
+};
+
+// <grammar> ::= <production> <ws> <grammar> | <production> <ws>;
+Parser.prototype.grammar = function () {
+    var productions = [this.production()];
+    this.ws();
+    while (this.peek() === '<') {
+        productions.push(this.production());
+        this.ws();
+    }
+    return { type: 'grammar', productions: productions };
 };
 
 }(typeof exports === 'undefined' ? this.prettybnf = {} : exports));

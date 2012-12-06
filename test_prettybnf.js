@@ -42,9 +42,10 @@ exports.testParser_ws = function (t) {
 };
 
 exports.testParser_escaped = function (t) {
-    t.equal(new Parser('\\"').escaped(), '\\"');
-    t.equal(new Parser('\\n').escaped(), '\\n');
-    t.equal(new Parser('\\t').escaped(), '\\t');
+    t.equal(new Parser('\\"').escaped(), '\"');
+    t.equal(new Parser('\\n').escaped(), '\n');
+    t.equal(new Parser('\\t').escaped(), '\t');
+    t.equal(new Parser('\\\\').escaped(), '\\');
     t.throws(function () {
         new Parser('\\d').escaped();
     }, SyntaxError);
@@ -67,15 +68,21 @@ exports.testParser_isChar = function (t) {
 };
 
 exports.testParser_text = function (t) {
-    t.equal(new Parser('abc\\"\n').text(), 'abc\\"');
+    t.equal(new Parser('abc\\"\n').text(), 'abc\"');
     t.equal(new Parser('').text(), '');
     t.done();
 };
 
+exports.testParser_terminal_text = function (t) {
+    t.equal(new Parser('<abc\\"><\n').terminal_text(), '<abc\"><');
+    t.equal(new Parser('').terminal_text(), '');
+    t.done();
+};
+
 exports.testParser_terminal = function (t) {
-    var node = new Parser('"abc"').terminal();
+    var node = new Parser('"<abc<>"').terminal();
     t.equal(node.type, 'terminal');
-    t.equal(node.text, 'abc');
+    t.equal(node.text, '<abc<>');
     t.throws(function () { new Parser('abc"').terminal(); }, SyntaxError);
     t.throws(function () { new Parser('"abc').terminal(); }, SyntaxError);
     t.done();
@@ -85,6 +92,7 @@ exports.testParser_nonterminal = function (t) {
     var node = new Parser('<abc>').nonterminal();
     t.equal(node.type, 'nonterminal');
     t.equal(node.text, 'abc');
+    t.throws(function () { new Parser('<<abc>').nonterminal(); }, SyntaxError);
     t.throws(function () { new Parser('abc>').nonterminal(); }, SyntaxError);
     t.throws(function () { new Parser('<abc').nonterminal(); }, SyntaxError);
     t.done();
@@ -133,5 +141,14 @@ exports.testParser_production = function (t) {
     t.throws(function () { new Parser('<a> ::= ;').production(); }, SyntaxError);
     t.throws(function () { new Parser('<a> ').production(); }, SyntaxError);
     t.throws(function () { new Parser('<a> ::= "b"').production(); }, SyntaxError);
+    t.done();
+};
+
+exports.testParser_grammar = function (t) {
+    var fs = require('fs');
+    var node = new Parser(fs.readFileSync('prettybnf.bnf', 'utf8')).grammar();
+    t.equal(node.type, 'grammar');
+    t.equal(node.productions.length, 18);
+    t.throws(function () { new Parser('').grammar(); }, SyntaxError);
     t.done();
 };
