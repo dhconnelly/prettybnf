@@ -15,16 +15,21 @@ function Parser(input) {
     o.line = 1;
 }
 
-Parser.EOF = -1;
+var EOF = Parser.EOF = -1;
 
 Parser.prototype.peek = function () {
-    if (this.pos >= this.input.length) return Parser.EOF;
+    if (this.pos >= this.input.length) return EOF;
     return this.input[this.pos];
 };
 
-Parser.prototype.eat = function () {
-    if (this.pos >= this.input.length) return Parser.EOF;
-    return this.input[this.pos++];
+Parser.prototype.eat = function (expected) {
+    var ch = this.peek();
+    if (expected !== undefined && expected !== ch) {
+        throw new SyntaxError('Expected ' + expected + ', got' + ch);
+    }
+    if (ch === EOF) return EOF;
+    this.pos++;
+    return ch;
 };
 
 // <ws> ::= <space> <ws> | <empty>;
@@ -35,6 +40,40 @@ Parser.prototype.ws = function () {
     while (' \n\t'.indexOf(ch = this.peek()) >= 0) {
         if (ch === '\n') this.line++;
         ret += this.eat();
+    }
+    return ret;
+};
+
+// <escaped> ::= "\\\"" | "\\n" | "\\t";
+Parser.prototype.escaped = function () {
+    this.eat('\\');
+    var ch = this.peek();
+    if (ch !== '\"' && ch !== 'n' && ch !== 't') {
+        throw new SyntaxError('Invalid escape sequence: \\' + ch);
+    }
+    return '\\' + this.eat();
+};
+
+// <char> ::= <letter> | <digit> | <delim> | <escaped>;
+// <letter> ::= "a" | "b" | "c" | "d" | "e" | "f" | "g" | "h" | "i" | "j" | "k"
+//            | "l" | "m" | "n" | "o" | "p" | "q" | "r" | "s" | "t" | "u" | "v"
+//            | "w" | "x" | "y" | "z"
+//            | "A" | "B" | "C" | "D" | "E" | "F" | "G" | "H" | "I" | "J" | "K"
+//            | "L" | "M" | "N" | "O" | "P" | "Q" | "R" | "S" | "T" | "U" | "V"
+//            | "W" | "X" | "Y" | "Z";
+// <digit> ::= "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" | "0";
+// <delim> ::= "-" | "_" | "|" | ":" | "=" | ";" | " ";
+Parser.prototype.isChar = function () {
+    var ch = this.peek();
+    return ch !== EOF && ((/[a-zA-Z0-9\-_|:=; ]/).test(ch) || ch === '\\');
+};
+
+// <text> ::= <char> <text> | <empty>;
+Parser.prototype.text = function () {
+    var ret = '', ch;
+    while (this.isChar()) {
+        if (this.peek() === '\\') ret += this.escaped();
+        else ret += this.eat();
     }
     return ret;
 };
