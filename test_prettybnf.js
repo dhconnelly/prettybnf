@@ -119,11 +119,11 @@ exports.testParser_expression = function (t) {
 
 exports.testParser_expressions = function (t) {
     var node = new Parser('<abc> <def> | "ghi" | ""').expressions();
-    t.equal(node.type, 'expressions');
-    t.equal(node.expressions.length, 3);
-    t.equal(node.expressions[0].terms.length, 2);
-    t.equal(node.expressions[1].terms.length, 1);
-    t.equal(node.expressions[2].terms.length, 1);
+    t.ok(Array.isArray(node));
+    t.equal(node.length, 3);
+    t.equal(node[0].terms.length, 2);
+    t.equal(node[1].terms.length, 1);
+    t.equal(node[2].terms.length, 1);
     t.throws(function () { new Parser('').expressions(); }, SyntaxError);
     t.throws(function () { new Parser('<a> |').expressions(); }, SyntaxError);
     t.throws(function () { new Parser('| <a>').expressions(); }, SyntaxError);
@@ -134,8 +134,8 @@ exports.testParser_production = function (t) {
     var node = new Parser('<a>\t::=   <b> | "c" <d> | ""\n\t;').production();
     t.equal(node.type, 'production');
     t.equal(node.lhs.type, 'nonterminal');
-    t.equal(node.rhs.type, 'expressions');
-    t.equal(node.rhs.expressions.length, 3);
+    t.ok(Array.isArray(node.rhs));
+    t.equal(node.rhs.length, 3);
     t.throws(function () { new Parser(' <a> ::= "b";').production(); }, SyntaxError);
     t.throws(function () { new Parser('::= "b";').production(); }, SyntaxError);
     t.throws(function () { new Parser('<a> ::= ;').production(); }, SyntaxError);
@@ -169,19 +169,16 @@ var ast = {
                 type: 'nonterminal',
                 text: 'list'
             },
-            rhs: {
-                type: 'expressions',
-                expressions: [
-                    {
-                        type: 'expression',
-                        terms: [
-                            { type: 'terminal', text: '<' },
-                            { type: 'nonterminal', text: 'items' },
-                            { type: 'terminal', text: '>' }
-                        ]
-                    }
-                ]
-            }
+            rhs: [
+                {
+                    type: 'expression',
+                    terms: [
+                        { type: 'terminal', text: '<' },
+                        { type: 'nonterminal', text: 'items' },
+                        { type: 'terminal', text: '>' }
+                    ]
+                }
+            ]
         },
         {
             type: 'production',
@@ -189,25 +186,22 @@ var ast = {
                 type: 'nonterminal',
                 text: 'items'
             },
-            rhs: {
-                type: 'expressions',
-                expressions: [
-                    {
-                        type: 'expression',
-                        terms: [
-                            { type: 'nonterminal', text: 'items' },
-                            { type: 'terminal', text: ' ' },
-                            { type: 'nonterminal', text: 'item' }
-                        ]
-                    },
-                    {
-                        type: 'expression',
-                        terms: [
-                            { type: 'nonterminal', text: 'item' }
-                        ]
-                    }
-                ]
-            }
+            rhs: [
+                {
+                    type: 'expression',
+                    terms: [
+                        { type: 'nonterminal', text: 'items' },
+                        { type: 'terminal', text: ' ' },
+                        { type: 'nonterminal', text: 'item' }
+                    ]
+                },
+                {
+                    type: 'expression',
+                    terms: [
+                        { type: 'nonterminal', text: 'item' }
+                    ]
+                }
+            ]
         },
         {
             type: 'production',
@@ -215,29 +209,26 @@ var ast = {
                 type: 'nonterminal',
                 text: 'item'
             },
-            rhs: {
-                type: 'expressions',
-                expressions: [
-                    {
-                        type: 'expression',
-                        terms: [
-                            { type: 'terminal', text: 'foo' }
-                        ]
-                    },
-                    {
-                        type: 'expression',
-                        terms: [
-                            { type: 'terminal', text: 'bar' }
-                        ]
-                    },
-                    {
-                        type: 'expression',
-                        terms: [
-                            { type: 'terminal', text: 'baz' }
-                        ]
-                    }
-                ]
-            }
+            rhs: [
+                {
+                    type: 'expression',
+                    terms: [
+                        { type: 'terminal', text: 'foo' }
+                    ]
+                },
+                {
+                    type: 'expression',
+                    terms: [
+                        { type: 'terminal', text: 'bar' }
+                    ]
+                },
+                {
+                    type: 'expression',
+                    terms: [
+                        { type: 'terminal', text: 'baz' }
+                    ]
+                }
+            ]
         }
     ]
 };
@@ -275,8 +266,7 @@ function nodesEqual(left, right) {
     case 'terminal':
     case 'nonterminal': return left.text === right.text;
     case 'expression':  return nodeListsEqual(left.terms, right.terms);
-    case 'expressions': return nodeListsEqual(left.expressions, right.expressions);
-    case 'production':  return nodesEqual(left.lhs, right.lhs) && nodesEqual(left.rhs, right.rhs);
+    case 'production':  return nodesEqual(left.lhs, right.lhs) && nodeListsEqual(left.rhs, right.rhs);
     case 'grammar':     return nodeListsEqual(left.productions, right.productions);
     }
     throw new Error('Unknown node type: ' + left.type);

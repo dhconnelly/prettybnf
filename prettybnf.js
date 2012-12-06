@@ -141,7 +141,7 @@ Parser.prototype.expressions = function () {
         this.ws();
         expressions.push(this.expression());
     }
-    return { type: 'expressions', expressions: expressions };
+    return expressions;
 };
 
 // <production> ::= <nonterminal> <ws> "::=" <ws> <expressions> ";";
@@ -184,8 +184,7 @@ function stringify(node) {
     case 'terminal':    return '"' + escape(node.text) + '"';
     case 'nonterminal': return '<' + escape(node.text) + '>';
     case 'expression':  return node.terms.map(stringify).join(' ');
-    case 'expressions': return node.expressions.map(stringify).join(' | ');
-    case 'production':  return stringify(node.lhs) + ' ::= ' + stringify(node.rhs) + ';';
+    case 'production':  return stringify(node.lhs) + ' ::= ' + node.rhs.map(stringify).join(' | ') + ';';
     case 'grammar':     return node.productions.map(stringify).join('\n') + '\n';
     }
     throw new Error('Unknown node type: ' + node.type);
