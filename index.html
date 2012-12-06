@@ -71,80 +71,122 @@ from GitHub <a href="https://github.com/dhconnelly/prettybnf/downloads">here</a>
 <code>prettybnf.stringify(ast)</code>: serializes an AST to a BNF string</li>
 <li>
 <code>prettybnf.Parser(grammar)</code>: internals of the parser for testing and hacking</li>
-</ul><p>The parser constructs an AST, composed of AST nodes, from a grammar.  Each node
-is an object with a <code>type</code> property that specifies the type of node. The node
-types, which correspond to the BNF syntax recognized by the parser, are as
-follows:</p>
-
-<ul>
-<li><code>grammar</code></li>
-<li><code>production</code></li>
-<li><code>expression</code></li>
-<li><code>nonterminal</code></li>
-<li><code>terminal</code></li>
-</ul><p><code>prettybnf.parse</code> returns a <code>grammar</code> node.</p>
-
-<p>Each node has other relevant properties, described as follows:</p>
-
-<ul>
-<li>
-<code>grammar</code>:
-
-<ul>
-<li>
-<code>productions</code>: an <code>Array</code> of <code>production</code> nodes.</li>
-</ul>
-</li>
-<li>
-<code>production</code>:
-
-<ul>
-<li>
-<code>lhs</code>: a <code>nonterminal</code> node</li>
-<li>
-<code>rhs</code>: an <code>Array</code> of <code>expression</code> nodes</li>
-</ul>
-</li>
-<li>
-<code>expression</code>:
-
-<ul>
-<li>
-<code>terms</code>: an <code>Array</code> of <code>terminal</code> or <code>nonterminal</code> nodes</li>
-</ul>
-</li>
-<li>
-<code>terminal</code>:
-
-<ul>
-<li>
-<code>text</code>: the terminal <code>String</code>
-</li>
-</ul>
-</li>
-<li>
-<code>nonterminal</code>:
-
-<ul>
-<li>
-<code>text</code>: a <code>String</code> specifying the name of the nonterminal</li>
-</ul>
-</li>
 </ul><p>The BNF syntax recognized by the parser is defined in the file <code>prettybnf.bnf</code>,
 which is itself written in BNF.</p>
+
+<p>The parser constructs an AST, composed of AST nodes, from a grammar.  Each node
+is an object with a <code>type</code> property that specifies the type of node and other
+relevant properties.  The five node types are as follows:</p>
+
+<pre><code>{ type:        (String) 'grammar',
+  productions: (Array) list of productions         }
+
+{ type:        (String) 'production',
+  lhs:         (Object) a nonterminal node,
+  rhs:         (Array) list of expressions         }
+
+{ type:        (String) 'expression',
+  terms:       (Array) terminals and nonterminals  }
+
+{ type:        (String) 'nonterminal',
+  text:        (String) the nonterminal name       }
+
+{ type:        (String) 'terminal',
+  text:        (String) the terminal string        }
+</code></pre>
+
+<p><code>prettybnf.parse</code> returns a <code>grammar</code> node.</p>
+
+<h2>Example</h2>
+
+<p>Consider the following grammar, which you might have saved in the file <code>g.bnf</code>:</p>
+
+<pre><code>&lt;list&gt;  ::=  "&lt;" &lt;items&gt; "&gt;"               ;
+&lt;items&gt; ::=  &lt;items&gt; " " &lt;item&gt; | &lt;item&gt;   ;
+&lt;item&gt;  ::=  "foo" | "bar" | "baz"         ;
+</code></pre>
+
+<p>To read this grammar from the file, parse it, and print the AST, you might do
+the following:</p>
+
+<pre><code>// Node.js specific:
+var prettybnf = require('prettybnf'), fs = require('fs');
+var g = fs.readFileSync('g.bnf', 'utf8');
+
+// The grammar is stored in the string g
+var ast = prettybnf.parse(g);
+console.log(ast);
+</code></pre>
+
+<p>This will print out the AST for the above grammar, which looks like</p>
+
+<pre><code>{ type: 'grammar',
+  productions:
+   [ { type: 'production',
+       lhs: { type: 'nonterminal', text: 'list' },
+       rhs:
+        [ { type: 'expression',
+            terms:
+             [ { type: 'terminal', text: '&lt;' },
+               { type: 'nonterminal', text: 'items' },
+               { type: 'terminal', text: '&gt;' } ] } ] },
+     { type: 'production',
+       lhs: { type: 'nonterminal', text: 'items' },
+       rhs:
+        [ { type: 'expression',
+            terms:
+             [ { type: 'nonterminal', text: 'items' },
+               { type: 'terminal', text: ' ' },
+               { type: 'nonterminal', text: 'item' } ] },
+          { type: 'expression',
+            terms: [ { type: 'nonterminal', text: 'item' } ] } ] },
+     { type: 'production',
+       lhs: { type: 'nonterminal', text: 'item' },
+       rhs:
+        [ { type: 'expression',
+            terms: [ { type: 'terminal', text: 'foo' } ] },
+          { type: 'expression',
+            terms: [ { type: 'terminal', text: 'bar' } ] },
+          { type: 'expression',
+            terms: [ { type: 'terminal', text: 'baz' } ] } ] } ] }
+</code></pre>
+
+<p>You could add another expression to the <code>&lt;item&gt;</code> production:</p>
+
+<pre><code>var item = ast.productions[2];
+item.rhs.push({
+    type: 'expression',
+    terms: [{ type: 'terminal', text: 'hello' },
+            { type: 'nonterminal', text: 'list' }]
+});
+</code></pre>
+
+<p>Now print out the modified grammar:</p>
+
+<pre><code>var h = prettybnf.stringify(ast);
+console.log(h);
+</code></pre>
+
+<p>The resulting grammar looks like</p>
+
+<pre><code>&lt;list&gt;  ::=  "&lt;" &lt;items&gt; "&gt;";
+&lt;items&gt; ::=  &lt;items&gt; " " &lt;item&gt; | &lt;item&gt;;
+&lt;item&gt;  ::=  "foo" | "bar" | "baz" | "hello" &lt;list&gt;;
+</code></pre>
+
+<p>For a longer example, take a look at the file <code>prettybnf.bnf</code>, which defines
+the grammar recognized by the parser itself.</p>
 
 <h2>Contributing</h2>
 
 <ul>
 <li>fork on <a href="https://github.com/dhconnelly/prettybnf">GitHub</a>
 </li>
-<li>make sure you have <a href="http://nodejs.org">Node.js</a>
-</li>
 <li>write code in <code>prettybnf.js</code>
 </li>
 <li>add unit tests to <code>test_prettybnf.js</code>
 </li>
-<li>make sure all tests pass and everything passes <code>jshint</code>: <code>npm test</code>
+<li>make sure all tests and linting pass: <code>npm test</code>
 </li>
 <li>send me a pull request</li>
 </ul><h2>Author</h2>
