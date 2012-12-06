@@ -1,20 +1,22 @@
 {
   "name": "prettybnf",
   "version": "0.0.0",
-  "description": "a JavaScript library for parsing BNF grammars",
+  "description": "a JavaScript library for working with BNF grammars",
   "main": "prettybnf.js",
   "scripts": {
+    "pretest": "$(which jshint || echo node_modules/jshint/bin/hint) test_prettybnf.js prettybnf.js",
     "test": "$(which nodeunit || echo node_modules/nodeunit/bin/nodeunit) test_prettybnf.js"
   },
   "repository": {
     "type": "git",
     "url": "git://github.com/dhconnelly/prettybnf.git"
   },
-  "keywords": [ "bnf", "parser", "grammar" ],
+  "keywords": [ "bnf", "parser", "grammar", "ast" ],
   "author": "Daniel Connelly <dhconnelly@gmail.com> (http://dhconnelly.com)",
   "license": "BSD",
   "readmeFilename": "README.md",
   "devDependencies": {
-    "nodeunit": "0.7.x"
+    "nodeunit": "0.7.x",
+    "jshint": "0.9.x"
   }
 }
