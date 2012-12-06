@@ -13,6 +13,7 @@ function Parser(input) {
     o.input = input;
     o.pos = 0;
     o.line = 1;
+    o.linePos = 0;
 }
 
 var EOF = Parser.EOF = -1;
