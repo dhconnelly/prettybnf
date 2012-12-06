@@ -145,10 +145,139 @@ exports.testParser_production = function (t) {
 };
 
 exports.testParser_grammar = function (t) {
-    var fs = require('fs');
-    var node = new Parser(fs.readFileSync('prettybnf.bnf', 'utf8')).grammar();
+    var node = new Parser('<foo>\t ::= <foo> <foo> | "foo"  ;\n' +
+                          '<bar>\t ::= <bar> "bar" | "baz"  ;\n' +
+                          '<bah>\t ::= "\"" <foo> "\""      ;\n\n').grammar();
     t.equal(node.type, 'grammar');
-    t.equal(node.productions.length, 18);
+    t.equal(node.productions.length, 3);
     t.throws(function () { new Parser('').grammar(); }, SyntaxError);
     t.done();
 };
+
+// ---------------------------------------------------------------------------
+
+var grammar = '<list> ::= "<" <items> ">";\n' +
+              '<items> ::= <items> " " <item> | <item>;\n' +
+              '<item> ::= "foo" | "bar" | "baz";\n';
+
+var ast = {
+    type: 'grammar',
+    productions: [
+        {
+            type: 'production',
+            lhs: {
+                type: 'nonterminal',
+                text: 'list'
+            },
+            rhs: {
+                type: 'expressions',
+                expressions: [
+                    {
+                        type: 'expression',
+                        terms: [
+                            { type: 'terminal', text: '<' },
+                            { type: 'nonterminal', text: 'items' },
+                            { type: 'terminal', text: '>' }
+                        ]
+                    }
+                ]
+            }
+        },
+        {
+            type: 'production',
+            lhs: {
+                type: 'nonterminal',
+                text: 'items'
+            },
+            rhs: {
+                type: 'expressions',
+                expressions: [
+                    {
+                        type: 'expression',
+                        terms: [
+                            { type: 'nonterminal', text: 'items' },
+                            { type: 'terminal', text: ' ' },
+                            { type: 'nonterminal', text: 'item' }
+                        ]
+                    },
+                    {
+                        type: 'expression',
+                        terms: [
+                            { type: 'nonterminal', text: 'item' }
+                        ]
+                    }
+                ]
+            }
+        },
+        {
+            type: 'production',
+            lhs: {
+                type: 'nonterminal',
+                text: 'item'
+            },
+            rhs: {
+                type: 'expressions',
+                expressions: [
+                    {
+                        type: 'expression',
+                        terms: [
+                            { type: 'terminal', text: 'foo' }
+                        ]
+                    },
+                    {
+                        type: 'expression',
+                        terms: [
+                            { type: 'terminal', text: 'bar' }
+                        ]
+                    },
+                    {
+                        type: 'expression',
+                        terms: [
+                            { type: 'terminal', text: 'baz' }
+                        ]
+                    }
+                ]
+            }
+        }
+    ]
+};
+
+exports.test_parse = function (t) {
+    t.ok(nodesEqual(prettybnf.parse(grammar), ast));
+    t.done();
+};
+
+exports.test_stringify = function (t) {
+    t.equal(prettybnf.stringify(ast), grammar);
+    t.done();
+};
+
+exports.test_cycle = function (t) {
+    var fs = require('fs');
+    var g = fs.readFileSync('prettybnf.bnf', 'utf8');
+    var h = prettybnf.stringify(prettybnf.parse(g));
+    var i = prettybnf.stringify(prettybnf.parse(h));
+    t.equal(h, i);
+    t.done();
+};
+
+function nodeListsEqual(left, right) {
+    if (left.length !== right.length) return false;
+    for (var i = 0; i < left.length; i++) {
+        if (!nodesEqual(left[i], right[i])) return false;
+    }
+    return true;
+}
+
+function nodesEqual(left, right) {
+    if (left.type !== right.type) return false;
+    switch (left.type) {
+    case 'terminal':
+    case 'nonterminal': return left.text === right.text;
+    case 'expression':  return nodeListsEqual(left.terms, right.terms);
+    case 'expressions': return nodeListsEqual(left.expressions, right.expressions);
+    case 'production':  return nodesEqual(left.lhs, right.lhs) && nodesEqual(left.rhs, right.rhs);
+    case 'grammar':     return nodeListsEqual(left.productions, right.productions);
+    }
+    throw new Error('Unknown node type: ' + left.type);
+}

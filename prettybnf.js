@@ -2,8 +2,8 @@
 'use strict';
 
 exports.version = '0.0.0';
-exports.parse = function (g) {};
-exports.stringify = function (ast) {};
+exports.parse = parse;
+exports.stringify = stringify;
 exports.Parser = Parser;
 
 // ---------------------------------------------------------------------------
@@ -18,7 +18,7 @@ function Parser(input) {
 var EOF = Parser.EOF = -1;
 
 Parser.prototype.error = function (msg) {
-    throw new SyntaxError(msg + ' at ' + this.line + ':' + this.pos);
+    throw new SyntaxError(msg + ' at ' + this.line + ':' + this.linePos);
 };
 
 Parser.prototype.peek = function () {
@@ -33,6 +33,7 @@ Parser.prototype.eat = function (expected) {
     }
     if (ch === EOF) return EOF;
     this.pos++;
+    this.linePos++;
     return ch;
 };
 
@@ -42,7 +43,10 @@ Parser.prototype.eat = function (expected) {
 Parser.prototype.ws = function () {
     var ret = '', ch;
     while (' \n\t'.indexOf(ch = this.peek()) >= 0) {
-        if (ch === '\n') this.line++;
+        if (ch === '\n') {
+            this.line++;
+            this.linePos = 0;
+        }
         ret += this.eat();
     }
     return ret;
@@ -161,5 +165,30 @@ Parser.prototype.grammar = function () {
     }
     return { type: 'grammar', productions: productions };
 };
+
+// ---------------------------------------------------------------------------
+
+function parse(g) {
+    return new Parser(g).grammar();
+}
+
+function escape(text) {
+    return text.replace(/\\/g, '\\\\').
+                replace(/\"/g, '\\"').
+                replace(/\n/g, '\\n').
+                replace(/\t/g, '\\t');
+}
+
+function stringify(node) {
+    switch (node.type) {
+    case 'terminal':    return '"' + escape(node.text) + '"';
+    case 'nonterminal': return '<' + escape(node.text) + '>';
+    case 'expression':  return node.terms.map(stringify).join(' ');
+    case 'expressions': return node.expressions.map(stringify).join(' | ');
+    case 'production':  return stringify(node.lhs) + ' ::= ' + stringify(node.rhs) + ';';
+    case 'grammar':     return node.productions.map(stringify).join('\n') + '\n';
+    }
+    throw new Error('Unknown node type: ' + node.type);
+}
 
 }(typeof exports === 'undefined' ? this.prettybnf = {} : exports));
