@@ -99,4 +99,15 @@ Parser.prototype.term = function () {
     return (this.peek() === '<') ? this.nonterminal() : this.terminal();
 };
 
+// <expression> ::= <term> <ws> <expression> | <term>;
+Parser.prototype.expression = function () {
+    var terms = [this.term()];
+    this.ws();
+    while ('<"'.indexOf(this.peek()) >= 0) {
+        terms.push(this.term());
+        this.ws();
+    }
+    return { type: 'expression', terms: terms };
+};
+
 }(typeof exports === 'undefined' ? this.prettybnf = {} : exports));

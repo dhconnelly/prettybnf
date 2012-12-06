@@ -95,3 +95,15 @@ exports.testParser_term = function (t) {
     t.equal(new Parser('"abc"').term().type, 'terminal');
     t.done();
 };
+
+exports.testParser_expression = function (t) {
+    var node = new Parser('"abc"    <def>  ""').expression();
+    t.equal(node.type, 'expression');
+    t.equal(node.terms.length, 3);
+    t.equal(node.terms[0].text, 'abc');
+    t.equal(node.terms[1].text, 'def');
+    t.equal(node.terms[2].text, '');
+    t.throws(function () { new Parser('abc').expression(); }, SyntaxError);
+    t.throws(function () { new Parser(' abc').expression(); }, SyntaxError);
+    t.done();
+};
