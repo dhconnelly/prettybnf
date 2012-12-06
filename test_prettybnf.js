@@ -121,3 +121,17 @@ exports.testParser_expressions = function (t) {
     t.throws(function () { new Parser('| <a>').expressions(); }, SyntaxError);
     t.done();
 };
+
+exports.testParser_production = function (t) {
+    var node = new Parser('<a>\t::=   <b> | "c" <d> | ""\n\t;').production();
+    t.equal(node.type, 'production');
+    t.equal(node.lhs.type, 'nonterminal');
+    t.equal(node.rhs.type, 'expressions');
+    t.equal(node.rhs.expressions.length, 3);
+    t.throws(function () { new Parser(' <a> ::= "b";').production(); }, SyntaxError);
+    t.throws(function () { new Parser('::= "b";').production(); }, SyntaxError);
+    t.throws(function () { new Parser('<a> ::= ;').production(); }, SyntaxError);
+    t.throws(function () { new Parser('<a> ').production(); }, SyntaxError);
+    t.throws(function () { new Parser('<a> ::= "b"').production(); }, SyntaxError);
+    t.done();
+};

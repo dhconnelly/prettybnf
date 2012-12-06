@@ -121,4 +121,15 @@ Parser.prototype.expressions = function () {
     return { type: 'expressions', expressions: expressions };
 };
 
+// <production> ::= <nonterminal> <ws> "::=" <ws> <expressions> ";";
+Parser.prototype.production = function () {
+    var lhs = this.nonterminal();
+    this.ws();
+    this.eat(':'); this.eat(':'); this.eat('=');
+    this.ws();
+    var rhs = this.expressions();
+    this.eat(';');
+    return { type: 'production', lhs: lhs, rhs: rhs };
+};
+
 }(typeof exports === 'undefined' ? this.prettybnf = {} : exports));
