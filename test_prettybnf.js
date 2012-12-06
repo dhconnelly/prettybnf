@@ -245,10 +245,12 @@ exports.test_stringify = function (t) {
 
 exports.test_cycle = function (t) {
     var fs = require('fs');
-    var g = fs.readFileSync('prettybnf.bnf', 'utf8');
-    var h = prettybnf.stringify(prettybnf.parse(g));
-    var i = prettybnf.stringify(prettybnf.parse(h));
-    t.equal(h, i);
+    var ast1 = prettybnf.parse(fs.readFileSync('prettybnf.bnf', 'utf8'));
+    var str1 = prettybnf.stringify(ast1);
+    var ast2 = prettybnf.parse(str1);
+    var str2 = prettybnf.stringify(ast2);
+    t.ok(nodesEqual(ast1, ast2));
+    t.equal(str1, str2);
     t.done();
 };
 
