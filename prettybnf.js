@@ -48,7 +48,7 @@ Parser.prototype.ws = function () {
 Parser.prototype.escaped = function () {
     this.eat('\\');
     var ch = this.peek();
-    if (ch !== '\"' && ch !== 'n' && ch !== 't') {
+    if (ch !== '"' && ch !== 'n' && ch !== 't') {
         throw new SyntaxError('Invalid escape sequence: \\' + ch);
     }
     return '\\' + this.eat();
@@ -76,6 +76,27 @@ Parser.prototype.text = function () {
         else ret += this.eat();
     }
     return ret;
+};
+
+// <terminal> ::= "\"" <text> "\"";
+Parser.prototype.terminal = function () {
+    this.eat('"');
+    var text = this.text();
+    this.eat('"');
+    return { type: 'terminal', text: text };
+};
+
+// <nonterminal> ::= "<" <text> ">";
+Parser.prototype.nonterminal = function () {
+    this.eat('<');
+    var text = this.text();
+    this.eat('>');
+    return { type: 'nonterminal', text: text };
+};
+
+// <term> ::= <terminal> | <nonterminal>;
+Parser.prototype.term = function () {
+    return (this.peek() === '<') ? this.nonterminal() : this.terminal();
 };
 
 }(typeof exports === 'undefined' ? this.prettybnf = {} : exports));

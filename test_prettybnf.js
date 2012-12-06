@@ -42,7 +42,7 @@ exports.testParser_ws = function (t) {
 };
 
 exports.testParser_escaped = function (t) {
-    t.equal(new Parser('\\\"').escaped(), '\\\"');
+    t.equal(new Parser('\\"').escaped(), '\\"');
     t.equal(new Parser('\\n').escaped(), '\\n');
     t.equal(new Parser('\\t').escaped(), '\\t');
     t.throws(function () {
@@ -67,7 +67,31 @@ exports.testParser_isChar = function (t) {
 };
 
 exports.testParser_text = function (t) {
-    t.equal(new Parser('abc\\\"\n').text(), 'abc\\\"');
+    t.equal(new Parser('abc\\"\n').text(), 'abc\\"');
     t.equal(new Parser('').text(), '');
+    t.done();
+};
+
+exports.testParser_terminal = function (t) {
+    var node = new Parser('"abc"').terminal();
+    t.equal(node.type, 'terminal');
+    t.equal(node.text, 'abc');
+    t.throws(function () { new Parser('abc"').terminal(); }, SyntaxError);
+    t.throws(function () { new Parser('"abc').terminal(); }, SyntaxError);
+    t.done();
+};
+
+exports.testParser_nonterminal = function (t) {
+    var node = new Parser('<abc>').nonterminal();
+    t.equal(node.type, 'nonterminal');
+    t.equal(node.text, 'abc');
+    t.throws(function () { new Parser('abc>').nonterminal(); }, SyntaxError);
+    t.throws(function () { new Parser('<abc').nonterminal(); }, SyntaxError);
+    t.done();
+};
+
+exports.testParser_term = function (t) {
+    t.equal(new Parser('<abc>').term().type, 'nonterminal');
+    t.equal(new Parser('"abc"').term().type, 'terminal');
     t.done();
 };
