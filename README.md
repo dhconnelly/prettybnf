@@ -15,8 +15,8 @@ Getting Started
 
 You can use `prettybnf` both in Node.js apps and in modern browsers.  Only
 browsers that implement ECMAScript 5.1 with strict mode are supported.  This
-includes Chrome 13+, Firefox 4+, Safari 5.1+, IE 10+, and Opera 12+ (source:
-http://kangax.github.com/es5-compat-table).
+includes Chrome 13+, Firefox 4+, Safari 5.1+, IE 10+, and Opera 12+
+([source](http://kangax.github.com/es5-compat-table)).
 
 To get the library:
 
@@ -29,7 +29,7 @@ To get the library:
   create a global object named `prettybnf`.
 
 If you're not using `npm` you can download the latest version of `prettybnf.js`
-from GitHub here: https://github.com/dhconnelly/prettybnf/downloads
+from GitHub [here](https://github.com/dhconnelly/prettybnf/downloads).
 
 Usage
 -----
@@ -74,8 +74,8 @@ which is itself written in BNF.
 Contributing
 ------------
 
-- fork on GitHub: https://github.com/dhconnelly/prettybnf
-- make sure you have Node.js: http://nodejs.org
+- fork on [GitHub](https://github.com/dhconnelly/prettybnf)
+- make sure you have [Node.js](http://nodejs.org)
 - write code in `prettybnf.js`
 - add unit tests to `test_prettybnf.js`
 - make sure all tests pass and everything passes `jshint`: `npm test`
@@ -84,8 +84,7 @@ Contributing
 Author
 ------
 
-prettybnf is written and maintained by Daniel Connelly.  You can find my stuff
-at http://dhconnelly.com or email me at dhconnelly@gmail.com.
+Written by Daniel Connelly <dhconnelly@gmail.com> (http://dhconnelly.com).
 
 License
 -------
