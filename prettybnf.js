@@ -5,7 +5,7 @@
 (function (exports) {
 'use strict';
 
-exports.version = '0.1.1';
+exports.version = '0.1.2';
 exports.parse = parse;
 exports.stringify = stringify;
 exports.Parser = Parser;

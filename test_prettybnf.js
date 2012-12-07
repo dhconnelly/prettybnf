@@ -9,7 +9,7 @@
 var prettybnf = require('./prettybnf');
 
 exports.testVersion = function (t) {
-    t.equal(prettybnf.version, '0.1.1');
+    t.equal(prettybnf.version, '0.1.2');
     t.done();
 };
 
@@ -249,8 +249,7 @@ exports.test_stringify = function (t) {
 };
 
 exports.test_cycle = function (t) {
-    var fs = require('fs');
-    var ast1 = prettybnf.parse(fs.readFileSync('prettybnf.bnf', 'utf8'));
+    var ast1 = prettybnf.parse(grammar);
     var str1 = prettybnf.stringify(ast1);
     var ast2 = prettybnf.parse(str1);
     var str2 = prettybnf.stringify(ast2);

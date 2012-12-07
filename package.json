@@ -1,6 +1,6 @@
 {
   "name": "prettybnf",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "a JavaScript library for working with BNF grammars",
   "main": "prettybnf.js",
   "scripts": {
