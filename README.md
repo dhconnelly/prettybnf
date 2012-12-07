@@ -13,12 +13,15 @@ syntax as opposed to `yacc` syntax.
 Getting Started
 ---------------
 
+Download the latest version of `prettybnf.js` from GitHub
+[here](https://github.com/dhconnelly/prettybnf/downloads).
+
 You can use `prettybnf` both in Node.js apps and in modern browsers.  Only
 browsers that implement ECMAScript 5.1 with strict mode are supported.  This
 includes Chrome 13+, Firefox 4+, Safari 5.1+, IE 10+, and Opera 12+
 ([source](http://kangax.github.com/es5-compat-table)).
 
-To get the library:
+To use the library in your project:
 
 - in a Node.js app using `npm`: do `npm install prettybnf` and add
   `var prettybnf = require('prettybnf')` to your scripts.
@@ -28,43 +31,69 @@ To get the library:
   `<script src="path/to/prettybnf.js"></script>` tag to your HTML.  This will
   create a global object named `prettybnf`.
 
-If you're not using `npm` you can download the latest version of `prettybnf.js`
-from GitHub [here](https://github.com/dhconnelly/prettybnf/downloads).
-
 Usage
 -----
 
 There are four top-level exports on the `prettybnf` object:
 
-- `prettybnf.version`: string defining your version of the library
-- `prettybnf.parse(grammar)`: parses a BNF string and returns the AST
-- `prettybnf.stringify(ast)`: serializes an AST to a BNF string
-- `prettybnf.Parser(grammar)`: internals of the parser for testing and hacking
-
-The BNF syntax recognized by the parser is defined in the file `prettybnf.bnf`,
-which is itself written in BNF.
+    {
+        version: '0.1.1', // defines your version of the library
+        parse: function (grammar) {}, // String -> AST node
+        stringify: function (ast) {}, // AST node -> String
+        Parser: function (grammar) {}, // parser internals for testing
+    }
 
 The parser constructs an AST, composed of AST nodes, from a grammar.  Each node
-is an object with a `type` property that specifies the type of node and other
-relevant properties.  The five node types are as follows:
+is an object with a `type` property  and other relevant properties.  The five
+node types are as follows:
 
-    { type:        (String) 'grammar',
-      productions: (Array) list of productions         }
+    { type: 'grammar',
+      productions: an Array of productions }
 
-    { type:        (String) 'production',
-      lhs:         (Object) a nonterminal node,
-      rhs:         (Array) list of expressions         }
+    { type: 'production',
+      lhs: a nonterminal,
+      rhs: an Array of expressions }
 
-    { type:        (String) 'expression',
-      terms:       (Array) terminals and nonterminals  }
+    { type: 'expression',
+      terms: an Array of terminals and nonterminals }
 
-    { type:        (String) 'nonterminal',
-      text:        (String) the nonterminal name       }
+    { type: 'nonterminal',
+      text: the nonterminal String }
 
-    { type:        (String) 'terminal',
-      text:        (String) the terminal string        }
+    { type: 'terminal',
+      text: the terminal String }
 
 `prettybnf.parse` returns a `grammar` node.
+
+The language recongized by the `prettybnf` parser is defined by the following
+self-describing grammar:
+
+    <empty> ::= "";
+
+    <space> ::= " " | "\n" | "\t";
+    <letter> ::= "a" | "b" | "c" | "d" | "e" | "f" | "g" | "h" | "i" | "j"
+               | "k" | "l" | "m" | "n" | "o" | "p" | "q" | "r" | "s" | "t"
+               | "u" | "v" | "w" | "x" | "y" | "z"
+               | "A" | "B" | "C" | "D" | "E" | "F" | "G" | "H" | "I" | "J"
+               | "K" | "L" | "M" | "N" | "O" | "P" | "Q" | "R" | "S" | "T"
+               | "U" | "V" | "W" | "X" | "Y" | "Z";
+    <digit> ::= "0" | "1" | "2" | "3" | "4"
+              | "5" | "6" | "7" | "8" | "9";
+    <delim> ::= "-" | "_" | "|" | ":" | "=" | ";" | " ";
+    <escaped> ::= "\\\"" | "\\n" | "\\t" | "\\\\";
+    <char> ::= <letter> | <digit> | <delim> | <escaped>;
+    <terminal_char> ::= <char> | "<" | ">";
+
+    <ws> ::= <space> <ws> | <empty>;
+    <text> ::= <char> <text> | <empty>;
+    <terminal_text> ::= <terminal_char> <terminal_text> | <empty>;
+    <term> ::= <terminal> | <nonterminal>;
+    <terminal> ::= "\"" <terminal_text> "\"";
+    <nonterminal> ::= "<" <text> ">";
+    <expression> ::= <term> <ws> <expression> | <term> <ws>;
+    <expressions> ::= <expression> "|" <ws> <expressions> | <expression>;
+    <production> ::= <nonterminal> <ws> "::=" <ws> <expressions> ";";
+    <grammar> ::= <production> <ws> <grammar> | <production> <ws>;
 
 Example
 -------
@@ -138,9 +167,6 @@ The resulting grammar looks like
     <items> ::=  <items> " " <item> | <item>;
     <item>  ::=  "foo" | "bar" | "baz" | "hello" <list>;
 
-For a longer example, take a look at the file `prettybnf.bnf`, which defines
-the grammar recognized by the parser itself.
-
 Contributing
 ------------
 
@@ -153,9 +179,34 @@ Contributing
 Author
 ------
 
-Written by Daniel Connelly <dhconnelly@gmail.com> (http://dhconnelly.com).
+Written by [Daniel Connelly](http://dhconnelly.com) (<dhconnelly@gmail.com>).
 
 License
 -------
 
-Released under the 2-clause BSD license; see LICENSE for more details.
+Released under the Simplified (2-clause) BSD License, described here and in
+the `LICENSE` file:
+
+Copyright (c) 2012, Daniel Connelly
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice, this
+   list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.

@@ -1,4 +1,9 @@
+// Copyright 2012 Daniel Connelly.
+// Released under the Simplified (2-clause) BSD License.
+// See http://dhconnelly.com/prettybnf or the LICENSE file for more details.
+
 /*jshint node: true */
+
 'use strict';
 
 var prettybnf = require('./prettybnf');
