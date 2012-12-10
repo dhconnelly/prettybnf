@@ -20,7 +20,7 @@ Getting Started
 
 Get the source code from [GitHub](https://github.com/dhconnelly/prettybnf) or
 just [download](https://github.com/dhconnelly/prettybnf/downloads) the latest
-version.
+version.  You can also find it as an [npm module](https://npm.im/prettybnf).
 
 You can use `prettybnf` both in Node.js apps and in modern browsers.  Only
 browsers that implement ECMAScript 5.1 with strict mode are supported.  This
