@@ -18,8 +18,9 @@ syntax as opposed to `yacc` syntax.
 Getting Started
 ---------------
 
-Download the latest version of `prettybnf.js` from GitHub
-[here](https://github.com/dhconnelly/prettybnf/downloads).
+Get the source code from [GitHub](https://github.com/dhconnelly/prettybnf) or
+just [download](https://github.com/dhconnelly/prettybnf/downloads) the latest
+version.
 
 You can use `prettybnf` both in Node.js apps and in modern browsers.  Only
 browsers that implement ECMAScript 5.1 with strict mode are supported.  This
