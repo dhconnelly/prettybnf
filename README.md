@@ -14,7 +14,7 @@ Getting Started
 ---------------
 
 Get the source code from [GitHub](https://github.com/dhconnelly/prettybnf) or
-just [download](https://github.com/dhconnelly/prettybnf/downloads) the latest
+just [download](http://dhconnelly.github.com/prettybnf/prettybnf.js) the latest
 version.  You can also find it as an [npm module](https://npm.im/prettybnf).
 
 You can use `prettybnf` both in Node.js apps and in modern browsers.  Only
