@@ -81,7 +81,7 @@ Parser.prototype.escaped = function () {
 // <delim> ::= "-" | "_" | "|" | ":" | "=" | ";" | " ";
 Parser.prototype.isChar = function () {
     var ch = this.peek();
-    return ch !== EOF && ((/[a-zA-Z0-9\-_|:=; ]/).test(ch) || ch === '\\');
+    return ch !== EOF && ((/[a-zA-Z0-9\-_|:=; \/\(\)]/).test(ch) || ch === '\\');
 };
 
 // <text> ::= <char> <text> | <empty>;
