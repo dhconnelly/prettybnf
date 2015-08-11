@@ -13,7 +13,7 @@
   },
   "keywords": [ "bnf", "parser", "grammar", "ast" ],
   "author": "Daniel Connelly <dhconnelly@gmail.com> (http://dhconnelly.com)",
-  "license": "BSD",
+  "license": "BSD-2-Clause",
   "readmeFilename": "README.md",
   "devDependencies": {
     "nodeunit": "0.7.x",
