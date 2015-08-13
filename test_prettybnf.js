@@ -69,6 +69,9 @@ exports.testParser_isChar = function (t) {
     t.ok(new Parser(';').isChar());
     t.ok(new Parser(' ').isChar());
     t.ok(new Parser('\\').isChar());
+    t.ok(new Parser('/').isChar());
+    t.ok(new Parser('(').isChar());
+    t.ok(new Parser(')').isChar());
     t.done();
 };
 
